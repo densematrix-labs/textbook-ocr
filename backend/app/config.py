@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     tool_name: str = "textbook-ocr"
     free_uses_per_device: int = 3
     
+    # Internal testing (bypass token limits)
+    internal_test_key: str = "dm-internal-2026"
+    
     class Config:
         env_file = ".env"
 

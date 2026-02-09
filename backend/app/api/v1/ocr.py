@@ -6,6 +6,7 @@ from app.database import get_db
 from app.services.ocr import process_file
 from app.services.tokens import check_and_use_token, get_token_status
 from app.metrics import ocr_requests, tokens_consumed, free_trial_used
+from app.config import get_settings
 
 router = APIRouter(prefix="/ocr", tags=["OCR"])
 
@@ -36,9 +37,13 @@ class TokenStatusResponse(BaseModel):
 async def process_ocr(
     file: UploadFile = File(...),
     x_device_id: str = Header(..., alias="X-Device-Id"),
+    x_internal_key: Optional[str] = Header(None, alias="X-Internal-Key"),
     db: AsyncSession = Depends(get_db)
 ):
     """Process a PDF or image file and return OCR results in Markdown format."""
+    
+    settings = get_settings()
+    is_internal = x_internal_key == settings.internal_test_key
     
     # Validate file type
     content_type = file.content_type or ""
@@ -48,23 +53,25 @@ async def process_ocr(
             detail=f"Unsupported file type: {content_type}. Supported: PDF, JPEG, PNG, WebP"
         )
     
-    # Check and use token
-    success, message = await check_and_use_token(db, x_device_id)
-    if not success:
-        # Get token status for response
-        status = await get_token_status(db, x_device_id)
-        raise HTTPException(
-            status_code=402,
-            detail=message
-        )
+    # Check and use token (skip for internal testing)
+    if not is_internal:
+        success, message = await check_and_use_token(db, x_device_id)
+        if not success:
+            # Get token status for response
+            status = await get_token_status(db, x_device_id)
+            raise HTTPException(
+                status_code=402,
+                detail=message
+            )
     
     # Track metrics
     ocr_requests.labels(tool="textbook-ocr", file_type=content_type).inc()
-    tokens_consumed.labels(tool="textbook-ocr").inc()
+    if not is_internal:
+        tokens_consumed.labels(tool="textbook-ocr").inc()
     
     # Check if this was a free use
     status = await get_token_status(db, x_device_id)
-    if status["free_uses_remaining"] < 3:  # Was a free use
+    if not is_internal and status["free_uses_remaining"] < 3:  # Was a free use
         free_trial_used.labels(tool="textbook-ocr").inc()
     
     try:
