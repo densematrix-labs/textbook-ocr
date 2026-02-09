@@ -69,11 +69,18 @@ export async function processOCR(file: File): Promise<OCRResult> {
   const formData = new FormData()
   formData.append('file', file)
   
+  // Check for internal testing key
+  const internalKey = localStorage.getItem('internalKey')
+  const headers: Record<string, string> = {
+    'X-Device-Id': deviceId,
+  }
+  if (internalKey) {
+    headers['X-Internal-Key'] = internalKey
+  }
+  
   const response = await fetch(`${API_BASE}/ocr/process`, {
     method: 'POST',
-    headers: {
-      'X-Device-Id': deviceId,
-    },
+    headers,
     body: formData,
   })
   
