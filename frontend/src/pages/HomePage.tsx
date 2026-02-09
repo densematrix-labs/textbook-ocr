@@ -24,8 +24,9 @@ export function HomePage() {
   }, [fetchTokenStatus])
   
   const handleFileSelect = async (file: File) => {
-    // Check tokens
-    if (tokenStatus && tokenStatus.total_available <= 0) {
+    // Check tokens (skip if internal testing key is set)
+    const hasInternalKey = !!localStorage.getItem('internalKey')
+    if (!hasInternalKey && tokenStatus && tokenStatus.total_available <= 0) {
       navigate('/pricing')
       return
     }
@@ -169,19 +170,25 @@ export function HomePage() {
             {/* Token status */}
             {tokenStatus && (
               <div className="mt-8 text-center">
-                <p className="text-ink-600">
-                  {tokenStatus.total_available > 0 
-                    ? t('pricing.tokensRemaining', { count: tokenStatus.total_available })
-                    : t('pricing.noTokens')
-                  }
-                </p>
-                {tokenStatus.total_available <= 0 && (
-                  <button 
-                    onClick={() => navigate('/pricing')}
-                    className="mt-4 text-accent-600 hover:text-accent-700 font-medium"
-                  >
-                    {t('pricing.buyMore')} →
-                  </button>
+                {localStorage.getItem('internalKey') ? (
+                  <p className="text-green-600 font-medium">🔓 Internal testing mode</p>
+                ) : (
+                  <>
+                    <p className="text-ink-600">
+                      {tokenStatus.total_available > 0 
+                        ? t('pricing.tokensRemaining', { count: tokenStatus.total_available })
+                        : t('pricing.noTokens')
+                      }
+                    </p>
+                    {tokenStatus.total_available <= 0 && (
+                      <button 
+                        onClick={() => navigate('/pricing')}
+                        className="mt-4 text-accent-600 hover:text-accent-700 font-medium"
+                      >
+                        {t('pricing.buyMore')} →
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             )}
