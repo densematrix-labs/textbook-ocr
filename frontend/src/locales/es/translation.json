@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "OCR de Libros",
+    "subtitle": "Reconocimiento de Fórmulas con IA",
+    "description": "Convierte páginas de libros de texto a Markdown con reconocimiento preciso de fórmulas LaTeX"
+  },
+  "upload": {
+    "title": "Sube tu documento",
+    "dropzone": "Arrastra y suelta tu PDF o imagen aquí",
+    "or": "o",
+    "browse": "Explorar archivos",
+    "supported": "Soporta PDF, JPEG, PNG, WebP",
+    "processing": "Procesando tu documento...",
+    "processingHint": "Los PDF de varias páginas pueden tardar más"
+  },
+  "result": {
+    "title": "Resultado OCR",
+    "copy": "Copiar Markdown",
+    "copied": "¡Copiado!",
+    "download": "Descargar",
+    "newUpload": "Procesar otro",
+    "preview": "Vista previa",
+    "source": "Fuente Markdown"
+  },
+  "pricing": {
+    "title": "Precios",
+    "subtitle": "Elige tu plan",
+    "freeTrial": "Prueba gratuita",
+    "freeTrialDesc": "3 conversiones OCR gratis",
+    "tokensRemaining": "{{count}} conversiones restantes",
+    "noTokens": "Sin conversiones restantes",
+    "buyMore": "Comprar más",
+    "perConversion": "por conversión",
+    "popular": "Más popular",
+    "features": {
+      "multiPage": "Soporte PDF multipágina",
+      "latex": "Fórmulas LaTeX precisas",
+      "markdown": "Salida Markdown limpia",
+      "fast": "Procesamiento rápido"
+    }
+  },
+  "products": {
+    "ocr_3": {
+      "name": "Pack Inicial",
+      "description": "3 conversiones OCR"
+    },
+    "ocr_10": {
+      "name": "Pack Estándar",
+      "description": "10 conversiones OCR"
+    },
+    "ocr_30": {
+      "name": "Pack Pro",
+      "description": "30 conversiones OCR"
+    }
+  },
+  "payment": {
+    "success": "¡Pago exitoso!",
+    "successDesc": "Las conversiones se han añadido a tu cuenta.",
+    "tokensAdded": "{{count}} conversiones añadidas",
+    "continue": "Empezar a convertir"
+  },
+  "errors": {
+    "upload": "Error al subir el archivo",
+    "processing": "Error al procesar el documento",
+    "noTokens": "Sin conversiones. Por favor, compra más.",
+    "invalidFile": "Tipo de archivo inválido. Sube un PDF o imagen.",
+    "tooLarge": "Archivo demasiado grande. Máximo 20MB.",
+    "network": "Error de red. Inténtalo de nuevo."
+  },
+  "nav": {
+    "home": "Inicio",
+    "pricing": "Precios",
+    "language": "Idioma"
+  },
+  "footer": {
+    "poweredBy": "Desarrollado por DenseMatrix",
+    "privacy": "Política de privacidad",
+    "terms": "Términos de servicio"
+  },
+  "languages": {
+    "en": "English",
+    "zh": "中文",
+    "ja": "日本語",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ko": "한국어",
+    "es": "Español"
+  }
+}

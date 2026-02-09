@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "Textbook OCR",
+    "subtitle": "AI-Powered Math Formula Recognition",
+    "description": "Convert textbook pages to Markdown with accurate LaTeX formula recognition"
+  },
+  "upload": {
+    "title": "Upload Your Document",
+    "dropzone": "Drag & drop your PDF or image here",
+    "or": "or",
+    "browse": "Browse Files",
+    "supported": "Supports PDF, JPEG, PNG, WebP",
+    "processing": "Processing your document...",
+    "processingHint": "This may take a moment for multi-page PDFs"
+  },
+  "result": {
+    "title": "OCR Result",
+    "copy": "Copy Markdown",
+    "copied": "Copied!",
+    "download": "Download",
+    "newUpload": "Process Another",
+    "preview": "Preview",
+    "source": "Markdown Source"
+  },
+  "pricing": {
+    "title": "Pricing",
+    "subtitle": "Choose your plan",
+    "freeTrial": "Free Trial",
+    "freeTrialDesc": "3 free OCR conversions",
+    "tokensRemaining": "{{count}} conversions remaining",
+    "noTokens": "No conversions remaining",
+    "buyMore": "Buy More",
+    "perConversion": "per conversion",
+    "popular": "Most Popular",
+    "features": {
+      "multiPage": "Multi-page PDF support",
+      "latex": "Accurate LaTeX formulas",
+      "markdown": "Clean Markdown output",
+      "fast": "Fast processing"
+    }
+  },
+  "products": {
+    "ocr_3": {
+      "name": "Starter Pack",
+      "description": "3 OCR conversions"
+    },
+    "ocr_10": {
+      "name": "Standard Pack",
+      "description": "10 OCR conversions"
+    },
+    "ocr_30": {
+      "name": "Pro Pack",
+      "description": "30 OCR conversions"
+    }
+  },
+  "payment": {
+    "success": "Payment Successful!",
+    "successDesc": "Your tokens have been added to your account.",
+    "tokensAdded": "{{count}} conversions added",
+    "continue": "Start Converting"
+  },
+  "errors": {
+    "upload": "Failed to upload file",
+    "processing": "Failed to process document",
+    "noTokens": "No conversions remaining. Please purchase more.",
+    "invalidFile": "Invalid file type. Please upload PDF or image.",
+    "tooLarge": "File too large. Maximum size is 20MB.",
+    "network": "Network error. Please try again."
+  },
+  "nav": {
+    "home": "Home",
+    "pricing": "Pricing",
+    "language": "Language"
+  },
+  "footer": {
+    "poweredBy": "Powered by DenseMatrix",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+  "languages": {
+    "en": "English",
+    "zh": "中文",
+    "ja": "日本語",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ko": "한국어",
+    "es": "Español"
+  }
+}

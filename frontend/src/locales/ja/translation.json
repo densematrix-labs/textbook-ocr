@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "教科書OCR",
+    "subtitle": "AI数式認識",
+    "description": "教科書ページをMarkdownに変換、LaTeX数式を正確に認識"
+  },
+  "upload": {
+    "title": "ドキュメントをアップロード",
+    "dropzone": "PDFまたは画像をここにドロップ",
+    "or": "または",
+    "browse": "ファイルを選択",
+    "supported": "PDF、JPEG、PNG、WebP対応",
+    "processing": "ドキュメントを処理中...",
+    "processingHint": "複数ページのPDFは時間がかかる場合があります"
+  },
+  "result": {
+    "title": "認識結果",
+    "copy": "Markdownをコピー",
+    "copied": "コピーしました！",
+    "download": "ダウンロード",
+    "newUpload": "新しいファイルを処理",
+    "preview": "プレビュー",
+    "source": "Markdownソース"
+  },
+  "pricing": {
+    "title": "料金",
+    "subtitle": "プランを選択",
+    "freeTrial": "無料トライアル",
+    "freeTrialDesc": "3回の無料OCR変換",
+    "tokensRemaining": "残り{{count}}回の変換",
+    "noTokens": "変換回数がありません",
+    "buyMore": "追加購入",
+    "perConversion": "変換1回あたり",
+    "popular": "人気",
+    "features": {
+      "multiPage": "複数ページPDF対応",
+      "latex": "正確なLaTeX数式",
+      "markdown": "きれいなMarkdown出力",
+      "fast": "高速処理"
+    }
+  },
+  "products": {
+    "ocr_3": {
+      "name": "スタータープラン",
+      "description": "3回のOCR変換"
+    },
+    "ocr_10": {
+      "name": "スタンダードプラン",
+      "description": "10回のOCR変換"
+    },
+    "ocr_30": {
+      "name": "プロプラン",
+      "description": "30回のOCR変換"
+    }
+  },
+  "payment": {
+    "success": "支払い完了！",
+    "successDesc": "変換回数がアカウントに追加されました。",
+    "tokensAdded": "{{count}}回の変換を追加",
+    "continue": "変換を開始"
+  },
+  "errors": {
+    "upload": "ファイルのアップロードに失敗しました",
+    "processing": "ドキュメントの処理に失敗しました",
+    "noTokens": "変換回数がありません。追加購入してください。",
+    "invalidFile": "無効なファイル形式です。PDFまたは画像をアップロードしてください。",
+    "tooLarge": "ファイルが大きすぎます。最大20MBまで。",
+    "network": "ネットワークエラー。再試行してください。"
+  },
+  "nav": {
+    "home": "ホーム",
+    "pricing": "料金",
+    "language": "言語"
+  },
+  "footer": {
+    "poweredBy": "DenseMatrix提供",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約"
+  },
+  "languages": {
+    "en": "English",
+    "zh": "中文",
+    "ja": "日本語",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ko": "한국어",
+    "es": "Español"
+  }
+}

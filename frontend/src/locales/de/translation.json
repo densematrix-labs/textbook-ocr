@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "Lehrbuch OCR",
+    "subtitle": "KI-gestützte Formelerkennung",
+    "description": "Lehrbuchseiten in Markdown mit präziser LaTeX-Formelerkennung umwandeln"
+  },
+  "upload": {
+    "title": "Dokument hochladen",
+    "dropzone": "PDF oder Bild hierher ziehen",
+    "or": "oder",
+    "browse": "Dateien durchsuchen",
+    "supported": "Unterstützt PDF, JPEG, PNG, WebP",
+    "processing": "Dokument wird verarbeitet...",
+    "processingHint": "Mehrseitige PDFs können etwas länger dauern"
+  },
+  "result": {
+    "title": "OCR-Ergebnis",
+    "copy": "Markdown kopieren",
+    "copied": "Kopiert!",
+    "download": "Herunterladen",
+    "newUpload": "Weitere Datei verarbeiten",
+    "preview": "Vorschau",
+    "source": "Markdown-Quelle"
+  },
+  "pricing": {
+    "title": "Preise",
+    "subtitle": "Wählen Sie Ihren Plan",
+    "freeTrial": "Kostenlose Testversion",
+    "freeTrialDesc": "3 kostenlose OCR-Umwandlungen",
+    "tokensRemaining": "{{count}} Umwandlungen übrig",
+    "noTokens": "Keine Umwandlungen übrig",
+    "buyMore": "Mehr kaufen",
+    "perConversion": "pro Umwandlung",
+    "popular": "Beliebteste",
+    "features": {
+      "multiPage": "Mehrseitige PDF-Unterstützung",
+      "latex": "Präzise LaTeX-Formeln",
+      "markdown": "Saubere Markdown-Ausgabe",
+      "fast": "Schnelle Verarbeitung"
+    }
+  },
+  "products": {
+    "ocr_3": {
+      "name": "Starter-Paket",
+      "description": "3 OCR-Umwandlungen"
+    },
+    "ocr_10": {
+      "name": "Standard-Paket",
+      "description": "10 OCR-Umwandlungen"
+    },
+    "ocr_30": {
+      "name": "Profi-Paket",
+      "description": "30 OCR-Umwandlungen"
+    }
+  },
+  "payment": {
+    "success": "Zahlung erfolgreich!",
+    "successDesc": "Ihre Umwandlungen wurden Ihrem Konto hinzugefügt.",
+    "tokensAdded": "{{count}} Umwandlungen hinzugefügt",
+    "continue": "Jetzt umwandeln"
+  },
+  "errors": {
+    "upload": "Datei-Upload fehlgeschlagen",
+    "processing": "Dokumentverarbeitung fehlgeschlagen",
+    "noTokens": "Keine Umwandlungen übrig. Bitte kaufen Sie mehr.",
+    "invalidFile": "Ungültiger Dateityp. Bitte PDF oder Bild hochladen.",
+    "tooLarge": "Datei zu groß. Maximale Größe ist 20MB.",
+    "network": "Netzwerkfehler. Bitte erneut versuchen."
+  },
+  "nav": {
+    "home": "Startseite",
+    "pricing": "Preise",
+    "language": "Sprache"
+  },
+  "footer": {
+    "poweredBy": "Powered by DenseMatrix",
+    "privacy": "Datenschutzrichtlinie",
+    "terms": "Nutzungsbedingungen"
+  },
+  "languages": {
+    "en": "English",
+    "zh": "中文",
+    "ja": "日本語",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ko": "한국어",
+    "es": "Español"
+  }
+}

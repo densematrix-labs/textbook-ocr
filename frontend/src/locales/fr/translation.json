@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "OCR Manuel",
+    "subtitle": "Reconnaissance de formules par IA",
+    "description": "Convertissez les pages de manuels en Markdown avec une reconnaissance précise des formules LaTeX"
+  },
+  "upload": {
+    "title": "Télécharger votre document",
+    "dropzone": "Glissez-déposez votre PDF ou image ici",
+    "or": "ou",
+    "browse": "Parcourir les fichiers",
+    "supported": "PDF, JPEG, PNG, WebP pris en charge",
+    "processing": "Traitement du document...",
+    "processingHint": "Les PDF multi-pages peuvent prendre plus de temps"
+  },
+  "result": {
+    "title": "Résultat OCR",
+    "copy": "Copier le Markdown",
+    "copied": "Copié !",
+    "download": "Télécharger",
+    "newUpload": "Traiter un autre document",
+    "preview": "Aperçu",
+    "source": "Source Markdown"
+  },
+  "pricing": {
+    "title": "Tarifs",
+    "subtitle": "Choisissez votre formule",
+    "freeTrial": "Essai gratuit",
+    "freeTrialDesc": "3 conversions OCR gratuites",
+    "tokensRemaining": "{{count}} conversions restantes",
+    "noTokens": "Plus de conversions disponibles",
+    "buyMore": "Acheter plus",
+    "perConversion": "par conversion",
+    "popular": "Le plus populaire",
+    "features": {
+      "multiPage": "Support PDF multi-pages",
+      "latex": "Formules LaTeX précises",
+      "markdown": "Sortie Markdown propre",
+      "fast": "Traitement rapide"
+    }
+  },
+  "products": {
+    "ocr_3": {
+      "name": "Pack Débutant",
+      "description": "3 conversions OCR"
+    },
+    "ocr_10": {
+      "name": "Pack Standard",
+      "description": "10 conversions OCR"
+    },
+    "ocr_30": {
+      "name": "Pack Pro",
+      "description": "30 conversions OCR"
+    }
+  },
+  "payment": {
+    "success": "Paiement réussi !",
+    "successDesc": "Vos conversions ont été ajoutées à votre compte.",
+    "tokensAdded": "{{count}} conversions ajoutées",
+    "continue": "Commencer à convertir"
+  },
+  "errors": {
+    "upload": "Échec du téléchargement",
+    "processing": "Échec du traitement",
+    "noTokens": "Plus de conversions. Veuillez en acheter plus.",
+    "invalidFile": "Type de fichier invalide. Veuillez télécharger un PDF ou une image.",
+    "tooLarge": "Fichier trop volumineux. Taille maximale : 20 Mo.",
+    "network": "Erreur réseau. Veuillez réessayer."
+  },
+  "nav": {
+    "home": "Accueil",
+    "pricing": "Tarifs",
+    "language": "Langue"
+  },
+  "footer": {
+    "poweredBy": "Propulsé par DenseMatrix",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation"
+  },
+  "languages": {
+    "en": "English",
+    "zh": "中文",
+    "ja": "日本語",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ko": "한국어",
+    "es": "Español"
+  }
+}

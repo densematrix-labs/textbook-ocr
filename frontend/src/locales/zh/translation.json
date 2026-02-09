@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "教材OCR助手",
+    "subtitle": "AI 数学公式识别",
+    "description": "将教材页面转换为 Markdown，精准识别 LaTeX 数学公式"
+  },
+  "upload": {
+    "title": "上传文档",
+    "dropzone": "拖放 PDF 或图片到这里",
+    "or": "或者",
+    "browse": "选择文件",
+    "supported": "支持 PDF、JPEG、PNG、WebP",
+    "processing": "正在处理文档...",
+    "processingHint": "多页 PDF 可能需要稍长时间"
+  },
+  "result": {
+    "title": "识别结果",
+    "copy": "复制 Markdown",
+    "copied": "已复制！",
+    "download": "下载",
+    "newUpload": "处理新文档",
+    "preview": "预览",
+    "source": "Markdown 源码"
+  },
+  "pricing": {
+    "title": "价格",
+    "subtitle": "选择适合你的方案",
+    "freeTrial": "免费试用",
+    "freeTrialDesc": "3 次免费 OCR 转换",
+    "tokensRemaining": "剩余 {{count}} 次转换",
+    "noTokens": "转换次数已用完",
+    "buyMore": "购买更多",
+    "perConversion": "每次转换",
+    "popular": "最受欢迎",
+    "features": {
+      "multiPage": "多页 PDF 支持",
+      "latex": "精准 LaTeX 公式",
+      "markdown": "清晰 Markdown 输出",
+      "fast": "快速处理"
+    }
+  },
+  "products": {
+    "ocr_3": {
+      "name": "入门包",
+      "description": "3 次 OCR 转换"
+    },
+    "ocr_10": {
+      "name": "标准包",
+      "description": "10 次 OCR 转换"
+    },
+    "ocr_30": {
+      "name": "专业包",
+      "description": "30 次 OCR 转换"
+    }
+  },
+  "payment": {
+    "success": "支付成功！",
+    "successDesc": "转换次数已添加到您的账户。",
+    "tokensAdded": "已添加 {{count}} 次转换",
+    "continue": "开始转换"
+  },
+  "errors": {
+    "upload": "文件上传失败",
+    "processing": "文档处理失败",
+    "noTokens": "转换次数已用完，请购买更多。",
+    "invalidFile": "不支持的文件类型，请上传 PDF 或图片。",
+    "tooLarge": "文件过大，最大支持 20MB。",
+    "network": "网络错误，请重试。"
+  },
+  "nav": {
+    "home": "首页",
+    "pricing": "价格",
+    "language": "语言"
+  },
+  "footer": {
+    "poweredBy": "由 DenseMatrix 提供技术支持",
+    "privacy": "隐私政策",
+    "terms": "服务条款"
+  },
+  "languages": {
+    "en": "English",
+    "zh": "中文",
+    "ja": "日本語",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ko": "한국어",
+    "es": "Español"
+  }
+}
