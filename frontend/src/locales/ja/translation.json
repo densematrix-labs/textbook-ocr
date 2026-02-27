@@ -17,7 +17,9 @@
     "title": "認識結果",
     "copy": "Markdownをコピー",
     "copied": "コピーしました！",
-    "download": "ダウンロード",
+    "download": "Download",
+    "downloadMd": "Download .md",
+    "downloadWord": "Download .docx",
     "newUpload": "新しいファイルを処理",
     "preview": "プレビュー",
     "source": "Markdownソース"

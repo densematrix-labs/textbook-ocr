@@ -18,6 +18,8 @@
     "copy": "复制 Markdown",
     "copied": "已复制！",
     "download": "下载",
+    "downloadMd": "下载 .md",
+    "downloadWord": "下载 Word",
     "newUpload": "处理新文档",
     "preview": "预览",
     "source": "Markdown 源码"

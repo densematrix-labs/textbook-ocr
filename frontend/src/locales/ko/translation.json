@@ -17,7 +17,9 @@
     "title": "인식 결과",
     "copy": "Markdown 복사",
     "copied": "복사됨!",
-    "download": "다운로드",
+    "download": "Download",
+    "downloadMd": "Download .md",
+    "downloadWord": "Download .docx",
     "newUpload": "새 문서 처리",
     "preview": "미리보기",
     "source": "Markdown 소스"

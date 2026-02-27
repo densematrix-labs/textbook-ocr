@@ -18,6 +18,8 @@
     "copy": "Copy Markdown",
     "copied": "Copied!",
     "download": "Download",
+    "downloadMd": "Download .md",
+    "downloadWord": "Download .docx",
     "newUpload": "Process Another",
     "preview": "Preview",
     "source": "Markdown Source"

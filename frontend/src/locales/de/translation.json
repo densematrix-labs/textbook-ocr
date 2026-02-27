@@ -17,7 +17,9 @@
     "title": "OCR-Ergebnis",
     "copy": "Markdown kopieren",
     "copied": "Kopiert!",
-    "download": "Herunterladen",
+    "download": "Download",
+    "downloadMd": "Download .md",
+    "downloadWord": "Download .docx",
     "newUpload": "Weitere Datei verarbeiten",
     "preview": "Vorschau",
     "source": "Markdown-Quelle"
