@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx'
-import { saveAs } from 'file-saver'
 import { DropZone } from '../components/DropZone'
 import { MarkdownPreview } from '../components/MarkdownPreview'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useAppStore } from '../lib/store'
-import { processOCR } from '../lib/api'
+import { processOCR, convertToDocx } from '../lib/api'
 
 type ViewMode = 'preview' | 'source'
 
@@ -74,85 +72,21 @@ export function HomePage() {
   const handleDownloadWord = async () => {
     if (!result) return
     
-    // Parse markdown and convert to docx paragraphs
-    const lines = result.split('\n')
-    const children: Paragraph[] = []
-    
-    for (const line of lines) {
-      if (line.startsWith('# ')) {
-        children.push(new Paragraph({
-          text: line.slice(2),
-          heading: HeadingLevel.HEADING_1,
-        }))
-      } else if (line.startsWith('## ')) {
-        children.push(new Paragraph({
-          text: line.slice(3),
-          heading: HeadingLevel.HEADING_2,
-        }))
-      } else if (line.startsWith('### ')) {
-        children.push(new Paragraph({
-          text: line.slice(4),
-          heading: HeadingLevel.HEADING_3,
-        }))
-      } else if (line.startsWith('- ') || line.startsWith('* ')) {
-        children.push(new Paragraph({
-          children: [new TextRun({ text: '• ' + line.slice(2) })],
-        }))
-      } else if (line.startsWith('$$') || line.endsWith('$$')) {
-        // LaTeX block - keep as-is for now (Word doesn't support LaTeX natively)
-        children.push(new Paragraph({
-          children: [new TextRun({ text: line, italics: true })],
-        }))
-      } else if (line.includes('$') && line.match(/\$[^$]+\$/)) {
-        // Inline LaTeX - keep as-is
-        children.push(new Paragraph({
-          children: [new TextRun({ text: line })],
-        }))
-      } else if (line.trim() === '') {
-        children.push(new Paragraph({ text: '' }))
-      } else {
-        // Handle bold and italic
-        const textRuns: TextRun[] = []
-        let remaining = line
-        const regex = /(\*\*[^*]+\*\*|\*[^*]+\*|__[^_]+__|_[^_]+_)/g
-        let lastIndex = 0
-        let match
-        
-        while ((match = regex.exec(remaining)) !== null) {
-          // Add text before the match
-          if (match.index > lastIndex) {
-            textRuns.push(new TextRun({ text: remaining.slice(lastIndex, match.index) }))
-          }
-          
-          const matched = match[0]
-          if (matched.startsWith('**') || matched.startsWith('__')) {
-            textRuns.push(new TextRun({ text: matched.slice(2, -2), bold: true }))
-          } else {
-            textRuns.push(new TextRun({ text: matched.slice(1, -1), italics: true }))
-          }
-          lastIndex = regex.lastIndex
-        }
-        
-        // Add remaining text
-        if (lastIndex < remaining.length) {
-          textRuns.push(new TextRun({ text: remaining.slice(lastIndex) }))
-        }
-        
-        children.push(new Paragraph({
-          children: textRuns.length > 0 ? textRuns : [new TextRun({ text: line })],
-        }))
-      }
+    try {
+      // Use backend API with pandoc for proper LaTeX formula conversion
+      const blob = await convertToDocx(result)
+      
+      // Download the file
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'ocr-result.docx'
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to convert to Word'
+      setError(message)
     }
-    
-    const doc = new Document({
-      sections: [{
-        properties: {},
-        children,
-      }],
-    })
-    
-    const blob = await Packer.toBlob(doc)
-    saveAs(blob, 'ocr-result.docx')
   }
   
   const handleReset = () => {

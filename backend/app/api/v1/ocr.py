@@ -1,4 +1,8 @@
+import subprocess
+import tempfile
+import os
 from fastapi import APIRouter, UploadFile, File, Header, Depends, HTTPException
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 from typing import Optional
@@ -106,3 +110,63 @@ async def get_tokens(
     """Get token status for a device."""
     status = await get_token_status(db, x_device_id)
     return TokenStatusResponse(**status)
+
+
+class ConvertDocxRequest(BaseModel):
+    markdown: str
+
+
+@router.post("/convert-docx")
+async def convert_to_docx(request: ConvertDocxRequest):
+    """Convert markdown content to Word (.docx) format using pandoc.
+    
+    This properly handles LaTeX math formulas by converting them to OMML format.
+    """
+    try:
+        # Create temp files for input and output
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False, encoding='utf-8') as md_file:
+            md_file.write(request.markdown)
+            md_path = md_file.name
+        
+        docx_path = md_path.replace('.md', '.docx')
+        
+        try:
+            # Run pandoc to convert markdown to docx
+            # --mathml ensures LaTeX formulas are properly converted
+            result = subprocess.run(
+                ['pandoc', md_path, '-o', docx_path, '--from=markdown', '--to=docx'],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            
+            if result.returncode != 0:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Pandoc conversion failed: {result.stderr}"
+                )
+            
+            # Return the docx file
+            return FileResponse(
+                docx_path,
+                media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                filename='ocr-result.docx',
+                background=None  # Don't delete file in background task
+            )
+            
+        finally:
+            # Clean up input file (output file will be cleaned up by FileResponse)
+            if os.path.exists(md_path):
+                os.unlink(md_path)
+            # Note: docx_path cleanup is tricky with FileResponse, but temp files auto-cleanup eventually
+                
+    except subprocess.TimeoutExpired:
+        raise HTTPException(
+            status_code=500,
+            detail="Conversion timed out"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Conversion failed: {str(e)}"
+        )

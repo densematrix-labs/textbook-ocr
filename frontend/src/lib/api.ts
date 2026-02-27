@@ -137,3 +137,20 @@ export async function getPaymentStatus(checkoutId: string): Promise<PaymentStatu
   
   return response.json()
 }
+
+export async function convertToDocx(markdown: string): Promise<Blob> {
+  const response = await fetch(`${API_BASE}/ocr/convert-docx`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ markdown }),
+  })
+  
+  if (!response.ok) {
+    const data = await response.json()
+    throw new Error(extractErrorMessage(data.detail))
+  }
+  
+  return response.blob()
+}
