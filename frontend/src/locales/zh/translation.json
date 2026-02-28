@@ -87,5 +87,27 @@
     "fr": "Français",
     "ko": "한국어",
     "es": "Español"
+  },
+  "login": {
+    "title": "登录",
+    "subtitle": "登录后可跨设备同步余额",
+    "phone": "手机号",
+    "code": "验证码",
+    "sendCode": "发送验证码",
+    "submit": "登录",
+    "loading": "登录中...",
+    "login": "登录",
+    "logout": "退出登录",
+    "loggedIn": "已登录",
+    "skipLogin": "暂不登录，继续使用",
+    "invalidPhone": "请输入正确的手机号",
+    "sendCodeFailed": "发送验证码失败",
+    "fillAll": "请填写手机号和验证码",
+    "loginFailed": "登录失败",
+    "networkError": "网络错误，请重试",
+    "terms": "登录即表示同意",
+    "termsLink": "服务条款",
+    "and": "和",
+    "privacyLink": "隐私政策"
   }
 }

@@ -11,6 +11,7 @@ from app.services.ocr import process_file
 from app.services.tokens import check_and_use_token, get_token_status
 from app.metrics import ocr_requests, tokens_consumed, free_trial_used
 from app.config import get_settings
+from app.auth import get_current_user, UserInfo
 
 router = APIRouter(prefix="/ocr", tags=["OCR"])
 
@@ -31,7 +32,10 @@ class OCRResponse(BaseModel):
 
 
 class TokenStatusResponse(BaseModel):
-    device_id: str
+    device_id: Optional[str] = None
+    user_id: Optional[str] = None
+    phone: Optional[str] = None
+    mode: str = "device"
     free_uses_remaining: int
     paid_tokens: int
     total_available: int
@@ -42,12 +46,19 @@ async def process_ocr(
     file: UploadFile = File(...),
     x_device_id: str = Header(..., alias="X-Device-Id"),
     x_internal_key: Optional[str] = Header(None, alias="X-Internal-Key"),
+    authorization: Optional[str] = Header(None),
     db: AsyncSession = Depends(get_db)
 ):
-    """Process a PDF or image file and return OCR results in Markdown format."""
+    """Process a PDF or image file and return OCR results in Markdown format.
     
+    Supports both device mode (guest) and user mode (logged in with JWT).
+    User mode takes priority if JWT token is provided.
+    """
     settings = get_settings()
     is_internal = x_internal_key == settings.internal_test_key
+    
+    # Get user from JWT if provided
+    user = await get_current_user(authorization)
     
     # Validate file type
     content_type = file.content_type or ""
@@ -59,10 +70,8 @@ async def process_ocr(
     
     # Check and use token (skip for internal testing)
     if not is_internal:
-        success, message = await check_and_use_token(db, x_device_id)
+        success, message = await check_and_use_token(db, x_device_id, user)
         if not success:
-            # Get token status for response
-            status = await get_token_status(db, x_device_id)
             raise HTTPException(
                 status_code=402,
                 detail=message
@@ -73,16 +82,14 @@ async def process_ocr(
     if not is_internal:
         tokens_consumed.labels(tool="textbook-ocr").inc()
     
-    # Check if this was a free use
-    status = await get_token_status(db, x_device_id)
-    if not is_internal and status["free_uses_remaining"] < 3:  # Was a free use
+    # Get token status
+    status = await get_token_status(db, x_device_id, user)
+    if not is_internal and status["free_uses_remaining"] < 3:
         free_trial_used.labels(tool="textbook-ocr").inc()
     
     try:
-        # Read file
         file_bytes = await file.read()
         
-        # Process OCR
         markdown_result = await process_file(
             file_bytes,
             file.filename or "document",
@@ -105,10 +112,16 @@ async def process_ocr(
 @router.get("/tokens", response_model=TokenStatusResponse)
 async def get_tokens(
     x_device_id: str = Header(..., alias="X-Device-Id"),
+    authorization: Optional[str] = Header(None),
     db: AsyncSession = Depends(get_db)
 ):
-    """Get token status for a device."""
-    status = await get_token_status(db, x_device_id)
+    """Get token status for device or user.
+    
+    If JWT token is provided, returns user token status.
+    Otherwise returns device token status.
+    """
+    user = await get_current_user(authorization)
+    status = await get_token_status(db, x_device_id, user)
     return TokenStatusResponse(**status)
 
 
@@ -123,7 +136,6 @@ async def convert_to_docx(request: ConvertDocxRequest):
     This properly handles LaTeX math formulas by converting them to OMML format.
     """
     try:
-        # Create temp files for input and output
         with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False, encoding='utf-8') as md_file:
             md_file.write(request.markdown)
             md_path = md_file.name
@@ -131,8 +143,6 @@ async def convert_to_docx(request: ConvertDocxRequest):
         docx_path = md_path.replace('.md', '.docx')
         
         try:
-            # Run pandoc to convert markdown to docx
-            # --mathml ensures LaTeX formulas are properly converted
             result = subprocess.run(
                 ['pandoc', md_path, '-o', docx_path, '--from=markdown', '--to=docx'],
                 capture_output=True,
@@ -146,19 +156,16 @@ async def convert_to_docx(request: ConvertDocxRequest):
                     detail=f"Pandoc conversion failed: {result.stderr}"
                 )
             
-            # Return the docx file
             return FileResponse(
                 docx_path,
                 media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                 filename='ocr-result.docx',
-                background=None  # Don't delete file in background task
+                background=None
             )
             
         finally:
-            # Clean up input file (output file will be cleaned up by FileResponse)
             if os.path.exists(md_path):
                 os.unlink(md_path)
-            # Note: docx_path cleanup is tricky with FileResponse, but temp files auto-cleanup eventually
                 
     except subprocess.TimeoutExpired:
         raise HTTPException(

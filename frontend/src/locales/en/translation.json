@@ -87,5 +87,27 @@
     "fr": "Français",
     "ko": "한국어",
     "es": "Español"
+  },
+  "login": {
+    "title": "Sign In",
+    "subtitle": "Sign in to sync your balance across devices",
+    "phone": "Phone Number",
+    "code": "Verification Code",
+    "sendCode": "Send Code",
+    "submit": "Sign In",
+    "loading": "Signing in...",
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "loggedIn": "Signed in",
+    "skipLogin": "Continue without signing in",
+    "invalidPhone": "Please enter a valid phone number",
+    "sendCodeFailed": "Failed to send verification code",
+    "fillAll": "Please fill in phone number and code",
+    "loginFailed": "Sign in failed",
+    "networkError": "Network error, please try again",
+    "terms": "By signing in, you agree to our ",
+    "termsLink": "Terms of Service",
+    "and": " and ",
+    "privacyLink": "Privacy Policy"
   }
 }

@@ -3,7 +3,10 @@ import { getDeviceId } from './fingerprint'
 const API_BASE = '/api/v1'
 
 export interface TokenStatus {
-  device_id: string
+  device_id: string | null
+  user_id: string | null
+  phone?: string
+  mode: 'device' | 'user'
   free_uses_remaining: number
   paid_tokens: number
   total_available: number
@@ -46,12 +49,32 @@ function extractErrorMessage(detail: unknown): string {
   return 'An error occurred'
 }
 
+/**
+ * Get auth headers including JWT if available
+ */
+function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {}
+  
+  const token = localStorage.getItem('access_token')
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+  
+  const internalKey = localStorage.getItem('internalKey')
+  if (internalKey) {
+    headers['X-Internal-Key'] = internalKey
+  }
+  
+  return headers
+}
+
 export async function getTokenStatus(): Promise<TokenStatus> {
   const deviceId = await getDeviceId()
   
   const response = await fetch(`${API_BASE}/ocr/tokens`, {
     headers: {
       'X-Device-Id': deviceId,
+      ...getAuthHeaders(),
     },
   })
   
@@ -69,13 +92,9 @@ export async function processOCR(file: File): Promise<OCRResult> {
   const formData = new FormData()
   formData.append('file', file)
   
-  // Check for internal testing key
-  const internalKey = localStorage.getItem('internalKey')
   const headers: Record<string, string> = {
     'X-Device-Id': deviceId,
-  }
-  if (internalKey) {
-    headers['X-Internal-Key'] = internalKey
+    ...getAuthHeaders(),
   }
   
   const response = await fetch(`${API_BASE}/ocr/process`, {
@@ -105,15 +124,30 @@ export async function getProducts(): Promise<Product[]> {
 
 export async function createCheckout(productId: string): Promise<CheckoutResponse> {
   const deviceId = await getDeviceId()
+  const token = localStorage.getItem('access_token')
+  
+  // Get user_id if logged in
+  let userId: string | undefined
+  if (token) {
+    try {
+      // Decode JWT to get user_id (simple base64 decode of payload)
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      userId = payload.sub || payload.user_id
+    } catch {
+      // Ignore decode errors
+    }
+  }
   
   const response = await fetch(`${API_BASE}/payment/checkout`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeaders(),
     },
     body: JSON.stringify({
       product_id: productId,
       device_id: deviceId,
+      user_id: userId,
       success_url: `${window.location.origin}/payment/success`,
       cancel_url: `${window.location.origin}/pricing`,
     }),
@@ -128,7 +162,9 @@ export async function createCheckout(productId: string): Promise<CheckoutRespons
 }
 
 export async function getPaymentStatus(checkoutId: string): Promise<PaymentStatus> {
-  const response = await fetch(`${API_BASE}/payment/status/${checkoutId}`)
+  const response = await fetch(`${API_BASE}/payment/status/${checkoutId}`, {
+    headers: getAuthHeaders(),
+  })
   
   if (!response.ok) {
     const data = await response.json()
@@ -143,6 +179,7 @@ export async function convertToDocx(markdown: string): Promise<Blob> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeaders(),
     },
     body: JSON.stringify({ markdown }),
   })
