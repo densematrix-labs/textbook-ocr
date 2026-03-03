@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 
 const DENSEMATRIX_AUTH_URL = 'https://api.densematrix.ai'
+// Default organization for textbook-ocr users
+// Using DENSEMATRIX for now, can create dedicated org later
+const DEFAULT_ORG_CODE = 'DENSEMATRIX'
 
 export function LoginPage() {
   const { t } = useTranslation()
@@ -47,7 +50,7 @@ export function LoginPage() {
         }, 1000)
       } else {
         const data = await response.json()
-        setError(data.detail || t('login.sendCodeFailed', '发送验证码失败'))
+        setError(data.error || data.detail || t('login.sendCodeFailed', '发送验证码失败'))
       }
     } catch (err) {
       setError(t('login.networkError', '网络错误，请重试'))
@@ -68,17 +71,52 @@ export function LoginPage() {
     setError(null)
     
     try {
-      const response = await fetch(`${DENSEMATRIX_AUTH_URL}/api/auth/login`, {
+      // Try login first (using 'code' field as per API docs)
+      let response = await fetch(`${DENSEMATRIX_AUTH_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           phone,
-          verification_code: code
+          code  // API uses 'code', not 'verification_code'
         })
       })
       
-      if (response.ok) {
-        const data = await response.json()
+      let data = await response.json()
+      
+      // If user doesn't exist, auto-register
+      if (!response.ok && data.error === '用户不存在') {
+        console.log('User not found, attempting auto-register...')
+        
+        // Generate a random password (user won't need it, they use SMS code)
+        const randomPassword = Math.random().toString(36).slice(-12) + 'Aa1!'
+        
+        // Register with default org
+        response = await fetch(`${DENSEMATRIX_AUTH_URL}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone,
+            code,  // SMS verification code
+            real_name: `User_${phone.slice(-4)}`,  // Auto-generate name
+            password: randomPassword,
+            organization_code: DEFAULT_ORG_CODE
+          })
+        })
+        
+        data = await response.json()
+        
+        if (!response.ok) {
+          // Check for specific errors
+          if (data.error?.includes('组织') || data.error?.includes('organization') || data.error?.includes('Invalid')) {
+            setError(t('login.orgNotFound', '组织未配置，请联系管理员'))
+          } else {
+            setError(data.error || data.detail || t('login.registerFailed', '注册失败'))
+          }
+          return
+        }
+      }
+      
+      if (response.ok && data.access_token) {
         login(data.access_token, {
           id: data.user.id,
           phone: data.user.phone,
@@ -87,10 +125,10 @@ export function LoginPage() {
         })
         navigate('/')
       } else {
-        const data = await response.json()
-        setError(data.detail || t('login.loginFailed', '登录失败'))
+        setError(data.error || data.detail || t('login.loginFailed', '登录失败'))
       }
     } catch (err) {
+      console.error('Login error:', err)
       setError(t('login.networkError', '网络错误，请重试'))
     } finally {
       setIsLoading(false)
@@ -158,9 +196,13 @@ export function LoginPage() {
             disabled={isLoading || !isCodeSent}
             className="w-full py-3 bg-accent-600 text-white rounded-xl font-semibold hover:bg-accent-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isLoading ? t('login.loading', '登录中...') : t('login.submit', '登录')}
+            {isLoading ? t('login.loading', '登录中...') : t('login.submit', '登录 / 注册')}
           </button>
         </form>
+        
+        <p className="mt-4 text-xs text-ink-500 text-center">
+          {t('login.autoRegister', '新用户将自动注册')}
+        </p>
         
         <div className="mt-6 text-center">
           <Link to="/" className="text-ink-600 hover:text-ink-900">
