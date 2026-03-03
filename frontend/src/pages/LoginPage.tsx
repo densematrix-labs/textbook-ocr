@@ -5,8 +5,8 @@ import { useAuth } from '../contexts/AuthContext'
 
 const DENSEMATRIX_AUTH_URL = 'https://api.densematrix.ai'
 // Default organization for textbook-ocr users
-// Using DENSEMATRIX for now, can create dedicated org later
-const DEFAULT_ORG_CODE = 'DENSEMATRIX'
+// Using DSINTERNAL (DenseMatrix internal org)
+const DEFAULT_ORG_CODE = 'DSINTERNAL'
 
 export function LoginPage() {
   const { t } = useTranslation()
