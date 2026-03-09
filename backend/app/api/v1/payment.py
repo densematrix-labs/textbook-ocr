@@ -26,6 +26,7 @@ XUNHU_API_URL = "https://api.xunhupay.com/payment/do.html"
 # Product definitions (CNY prices)
 # price_fen: 分 (1 CNY = 100 分), used for internal tracking
 PRODUCTS = {
+    "ocr_test": {"tokens": 1, "price_fen": 100, "price_cny": "1.00", "name": "测试套餐（1 次）"},
     "ocr_3": {"tokens": 3, "price_fen": 1900, "price_cny": "19.00", "name": "3 次识别"},
     "ocr_10": {"tokens": 10, "price_fen": 4900, "price_cny": "49.00", "name": "10 次识别"},
     "ocr_30": {"tokens": 30, "price_fen": 12900, "price_cny": "129.00", "name": "30 次识别"},
