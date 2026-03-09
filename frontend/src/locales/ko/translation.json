@@ -39,7 +39,8 @@
       "latex": "정확한 LaTeX 수식",
       "markdown": "깔끔한 Markdown 출력",
       "fast": "빠른 처리"
-    }
+    },
+    "buyNow": "지금 구매"
   },
   "products": {
     "ocr_3": {

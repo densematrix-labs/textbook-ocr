@@ -145,7 +145,7 @@ export function PricingPage() {
                         Loading...
                       </span>
                     ) : (
-                      t('pricing.buyMore')
+                      t('pricing.buyNow')
                     )}
                   </button>
                 </div>

@@ -39,7 +39,8 @@
       "latex": "正確なLaTeX数式",
       "markdown": "きれいなMarkdown出力",
       "fast": "高速処理"
-    }
+    },
+    "buyNow": "今すぐ購入"
   },
   "products": {
     "ocr_3": {
