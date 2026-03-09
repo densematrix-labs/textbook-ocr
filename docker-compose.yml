@@ -27,9 +27,9 @@ services:
       - LLM_PROXY_URL=${LLM_PROXY_URL:-https://llm-proxy.densematrix.ai}
       - LLM_PROXY_KEY=${LLM_PROXY_KEY:-sk-wskhgeyawc}
       - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:///./app.db}
-      - CREEM_API_KEY=${CREEM_API_KEY:-}
-      - CREEM_WEBHOOK_SECRET=${CREEM_WEBHOOK_SECRET:-}
-      - CREEM_PRODUCT_IDS=${CREEM_PRODUCT_IDS:-{}}
+      - XUNHU_APPID=${XUNHU_APPID:-}
+      - XUNHU_SECRET=${XUNHU_SECRET:-}
+      - BASE_URL=${BASE_URL:-https://textbook-ocr.demo.densematrix.ai}
       - TOOL_NAME=textbook-ocr
     volumes:
       - backend_data:/app/data

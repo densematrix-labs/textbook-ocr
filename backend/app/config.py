@@ -14,14 +14,14 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "sqlite+aiosqlite:///./app.db"
     
-    # Creem Payment
-    creem_api_key: str = ""
-    creem_webhook_secret: str = ""
-    creem_product_ids: str = "{}"  # JSON string
+    # 虎皮椒 Payment (xunhupay.com)
+    xunhu_appid: str = ""
+    xunhu_secret: str = ""
     
     # App
     tool_name: str = "textbook-ocr"
     free_uses_per_device: int = 3
+    base_url: str = "https://textbook-ocr.demo.densematrix.ai"
     
     # Internal testing (bypass token limits)
     internal_test_key: str = "dm-internal-2026"

@@ -1,7 +1,9 @@
 import json
-import hmac
 import hashlib
-from fastapi import APIRouter, Request, Header, Depends, HTTPException
+import uuid
+import time
+from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi.responses import PlainTextResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel
@@ -18,12 +20,23 @@ from app.metrics import payment_success, payment_revenue
 router = APIRouter(prefix="/payment", tags=["Payment"])
 settings = get_settings()
 
-# Product definitions
+# 虎皮椒支付网关
+XUNHU_API_URL = "https://api.xunhupay.com/payment/do.html"
+
+# Product definitions (CNY prices)
+# price_fen: 分 (1 CNY = 100 分), used for internal tracking
 PRODUCTS = {
-    "ocr_3": {"tokens": 3, "price_cents": 299, "name": "3 OCR Credits"},
-    "ocr_10": {"tokens": 10, "price_cents": 799, "name": "10 OCR Credits"},
-    "ocr_30": {"tokens": 30, "price_cents": 1999, "name": "30 OCR Credits"},
+    "ocr_3": {"tokens": 3, "price_fen": 1900, "price_cny": "19.00", "name": "3 次识别"},
+    "ocr_10": {"tokens": 10, "price_fen": 4900, "price_cny": "49.00", "name": "10 次识别"},
+    "ocr_30": {"tokens": 30, "price_fen": 12900, "price_cny": "129.00", "name": "30 次识别"},
 }
+
+
+def generate_xunhu_hash(params: dict, secret: str) -> str:
+    """虎皮椒签名算法：按 key 排序后拼接，末尾加 secret，MD5。"""
+    sorted_items = sorted(params.items())
+    sign_str = "&".join(f"{k}={v}" for k, v in sorted_items if v != "" and k != "hash")
+    return hashlib.md5((sign_str + secret).encode("utf-8")).hexdigest()
 
 
 class CheckoutRequest(BaseModel):
@@ -31,6 +44,7 @@ class CheckoutRequest(BaseModel):
     device_id: str
     success_url: str
     cancel_url: Optional[str] = None
+    user_id: Optional[str] = None
 
 
 class CheckoutResponse(BaseModel):
@@ -43,126 +57,121 @@ async def create_checkout(
     request: CheckoutRequest,
     db: AsyncSession = Depends(get_db)
 ):
-    """Create a Creem checkout session."""
-    
+    """创建虎皮椒支付订单，返回支付跳转 URL。"""
+
     if request.product_id not in PRODUCTS:
         raise HTTPException(status_code=400, detail=f"Invalid product: {request.product_id}")
-    
+
+    if not settings.xunhu_appid or not settings.xunhu_secret:
+        raise HTTPException(status_code=500, detail="Payment not configured")
+
     product = PRODUCTS[request.product_id]
-    
-    # Parse product IDs from settings
-    try:
-        creem_product_ids = json.loads(settings.creem_product_ids)
-    except json.JSONDecodeError:
-        creem_product_ids = {}
-    
-    creem_product_id = creem_product_ids.get(request.product_id)
-    if not creem_product_id:
-        raise HTTPException(status_code=500, detail="Payment not configured for this product")
-    
-    # Create Creem checkout
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            "https://api.creem.io/v1/checkouts",
-            headers={
-                "Authorization": f"Bearer {settings.creem_api_key}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "product_id": creem_product_id,
-                "success_url": request.success_url,
-                "metadata": {
-                    "device_id": request.device_id,
-                    "product_sku": request.product_id,
-                    "tokens": product["tokens"]
-                }
-            }
-        )
-        
-        if response.status_code != 200:
-            raise HTTPException(status_code=500, detail="Failed to create checkout")
-        
-        data = response.json()
-    
+    trade_order_id = f"ocr_{uuid.uuid4().hex[:20]}"
+
+    params = {
+        "version": "1.1",
+        "appid": settings.xunhu_appid,
+        "trade_order_id": trade_order_id,
+        "total_fee": product["price_cny"],
+        "title": product["name"],
+        "time": str(int(time.time())),
+        "notify_url": f"{settings.base_url}/api/v1/payment/webhook",
+        "return_url": request.success_url,
+        "nonce_str": uuid.uuid4().hex,
+        "attach": json.dumps({
+            "device_id": request.device_id,
+            "sku": request.product_id,
+        }),
+    }
+    params["hash"] = generate_xunhu_hash(params, settings.xunhu_secret)
+
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        resp = await client.post(XUNHU_API_URL, data=params)
+        data = resp.json()
+
+    if data.get("errcode") != 0:
+        raise HTTPException(status_code=500, detail=data.get("errmsg", "Payment gateway error"))
+
     # Store transaction
     transaction = PaymentTransaction(
-        checkout_id=data["id"],
+        checkout_id=trade_order_id,
         device_id=request.device_id,
+        user_id=request.user_id,
         product_sku=request.product_id,
         tokens_granted=product["tokens"],
-        amount_cents=product["price_cents"],
-        status="pending"
+        amount_cents=product["price_fen"],
+        currency="CNY",
+        status="pending",
     )
     db.add(transaction)
     await db.commit()
-    
+
     return CheckoutResponse(
-        checkout_url=data["checkout_url"],
-        checkout_id=data["id"]
+        checkout_url=data["url"],
+        checkout_id=trade_order_id,
     )
 
 
 @router.post("/webhook")
 async def handle_webhook(
     request: Request,
-    creem_signature: str = Header(..., alias="Creem-Signature"),
     db: AsyncSession = Depends(get_db)
 ):
-    """Handle Creem webhook for payment completion."""
-    
-    body = await request.body()
-    
-    # Verify signature
-    expected = hmac.new(
-        settings.creem_webhook_secret.encode(),
-        body,
-        hashlib.sha256
-    ).hexdigest()
-    
-    if not hmac.compare_digest(expected, creem_signature):
+    """虎皮椒回调 Webhook（form-encoded POST）。"""
+
+    form = await request.form()
+    params = dict(form)
+
+    # 验签
+    received_hash = params.pop("hash", "")
+    expected_hash = generate_xunhu_hash(params, settings.xunhu_secret)
+    if received_hash != expected_hash:
         raise HTTPException(status_code=401, detail="Invalid signature")
-    
-    data = json.loads(body)
-    
-    if data.get("event") == "checkout.completed":
-        checkout = data.get("data", {})
-        checkout_id = checkout.get("id")
-        metadata = checkout.get("metadata", {})
-        
-        # Find transaction
+
+    # OD = 已支付
+    if params.get("status") == "OD":
+        trade_order_id = params.get("trade_order_id", "")
+
         result = await db.execute(
-            select(PaymentTransaction).where(PaymentTransaction.checkout_id == checkout_id)
+            select(PaymentTransaction).where(PaymentTransaction.checkout_id == trade_order_id)
         )
         transaction = result.scalar_one_or_none()
-        
+
         if transaction and transaction.status == "pending":
-            # Update transaction
             transaction.status = "completed"
             transaction.completed_at = datetime.utcnow()
-            
-            # Add tokens to device
-            await add_tokens(db, transaction.device_id, transaction.tokens_granted)
-            
+
+            # 解析 attach 获取 device_id 和 sku
+            try:
+                attach = json.loads(params.get("attach", "{}"))
+            except json.JSONDecodeError:
+                attach = {}
+
+            device_id = attach.get("device_id") or transaction.device_id
+            sku = attach.get("sku") or transaction.product_sku
+
+            await add_tokens(db, device_id, transaction.tokens_granted)
             await db.commit()
-            
-            # Track metrics
-            payment_success.labels(tool="textbook-ocr", product_sku=transaction.product_sku).inc()
+
+            # 埋点指标
+            payment_success.labels(tool="textbook-ocr", product_sku=sku).inc()
             payment_revenue.labels(tool="textbook-ocr").inc(transaction.amount_cents)
-    
-    return {"status": "ok"}
+
+    # 虎皮椒要求必须返回纯文本 "success"
+    return PlainTextResponse("success")
 
 
 @router.get("/products")
 async def list_products():
-    """List available products."""
+    """列出可购买的套餐。"""
     return {
         "products": [
             {
                 "id": pid,
                 "name": p["name"],
                 "tokens": p["tokens"],
-                "price_cents": p["price_cents"],
-                "price_display": f"${p['price_cents'] / 100:.2f}"
+                "price_cents": p["price_fen"],
+                "price_display": f"¥{p['price_cny']}",
             }
             for pid, p in PRODUCTS.items()
         ]
@@ -174,20 +183,19 @@ async def get_payment_status(
     checkout_id: str,
     db: AsyncSession = Depends(get_db)
 ):
-    """Get payment status for a checkout."""
+    """查询订单支付状态。"""
     result = await db.execute(
         select(PaymentTransaction).where(PaymentTransaction.checkout_id == checkout_id)
     )
     transaction = result.scalar_one_or_none()
-    
+
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
-    
-    # Get current token status
+
     token_status = await get_token_status(db, transaction.device_id)
-    
+
     return {
         "status": transaction.status,
         "tokens_granted": transaction.tokens_granted if transaction.status == "completed" else 0,
-        "token_status": token_status
+        "token_status": token_status,
     }

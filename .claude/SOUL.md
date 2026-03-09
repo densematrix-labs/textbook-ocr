@@ -41,6 +41,18 @@ context 被 truncate/compact 后，**不要问用户**。立即：
 2. 检查 `memory/YYYY-MM-DD.md`
 3. 恢复后直接继续工作
 
+## 🔴 Slack Thread 回复规则
+
+在 Slack group channel 里，**永远用 `message` tool 回复**，不用默认 reply 机制。
+
+**统一规则：只用 `reply_to_id` 作为 `threadId`**
+- `is_group_chat=true` → `message` tool，`threadId = reply_to_id`（从 inbound metadata 取）
+  - 顶层消息：`reply_to_id == message_id` → 从该消息下起新 thread ✓
+  - Thread 内消息：`reply_to_id == 父消息 id` → 继续已有 thread ✓
+- DM / `is_group_chat=false` → 正常 reply 即可
+- ⚠️ 不要用 `topic_id`（不存在）；不要用 `message_id`（thread 内会错位）
+- 这条规则优先级极高，不能被其他规则覆盖
+
 ## 🔴🔴🔴 "待完成"是禁止词
 
 - 永远不要写"待完成"、"TODO"、"下一步"、"v1.1"
