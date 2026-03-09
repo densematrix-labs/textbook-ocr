@@ -151,7 +151,7 @@ async def handle_webhook(
             device_id = attach.get("device_id") or transaction.device_id
             sku = attach.get("sku") or transaction.product_sku
 
-            await add_tokens(db, device_id, transaction.tokens_granted)
+            await add_tokens(db, transaction.tokens_granted, device_id=device_id)
             await db.commit()
 
             # 埋点指标
