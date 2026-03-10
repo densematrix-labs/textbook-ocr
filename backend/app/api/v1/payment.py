@@ -150,8 +150,16 @@ async def handle_webhook(
 
             device_id = attach.get("device_id") or transaction.device_id
             sku = attach.get("sku") or transaction.product_sku
+            user_id = transaction.user_id  # None for guest, set for logged-in users
 
-            await add_tokens(db, transaction.tokens_granted, device_id=device_id)
+            # If user_id is set (logged-in user), add tokens to user account;
+            # otherwise fall back to device-level tokens.
+            await add_tokens(
+                db,
+                transaction.tokens_granted,
+                device_id=device_id,
+                user_id=user_id if user_id else None,
+            )
             await db.commit()
 
             # 埋点指标
